@@ -1,10 +1,12 @@
 package me.whiteship.account;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import me.whiteship.Application;
@@ -35,10 +38,19 @@ public class AccountControllerTest {
 	@Autowired
 	ObjectMapper objectMapper; 
 	
+	MockMvc mockMvc;
+	
+	@Before
+	public void setUp() {
+		//공용변수로
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();;
+				
+	}
+	
+	
 	@Test
 	public void createAccount() throws Exception{
-		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(wac)
-				.build();
+
 		
 		AccountDto.Create createDto = new AccountDto.Create();
 		createDto.setUsername("whiteship");
@@ -49,8 +61,36 @@ public class AccountControllerTest {
 				.content(objectMapper.writeValueAsString(createDto)));
 		
 		result.andDo(print());
-		result.andExpect(status().isCreated());		
+		result.andExpect(status().isCreated());	
+		
+		// TODO JSON Path
+		result.andExpect(jsonPath("$.username", is("whiteship")));
+		
+		result = mockMvc.perform(post("/accounts")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(createDto)));
+		
+		result.andDo(print());
+		result.andExpect(status().isBadRequest());
+		result.andExpect(jsonPath("$.code", is("duplicated.username.exception")));
+		
 		
 	}
+	
+	@Test
+	public void createAccount_BadRequest() throws Exception {
+		AccountDto.Create createDto = new AccountDto.Create();
+		createDto.setUsername("   ");
+		createDto.setPassword("1234");
+		
+		ResultActions result = mockMvc.perform(post("/accounts")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(createDto)));
+		
+		result.andDo(print());
+		result.andExpect(status().isBadRequest());
+		result.andExpect(jsonPath("$.code", is("bad.request")));
+	}
+	
 
 }
