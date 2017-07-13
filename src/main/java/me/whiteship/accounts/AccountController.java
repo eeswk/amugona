@@ -1,9 +1,15 @@
 package me.whiteship.accounts;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -59,12 +65,32 @@ public class AccountController {
 		
 	}
 	
-	@ExceptionHandler(UserDuplicatedException.class)
-	public ResponseEntity handleuserDuplicatedException (UserDuplicatedException e) {
-		ErrorResponse errorResponse = new ErrorResponse();
-		errorResponse.setMessage("[ " + e.getUsername() + " ] 중복된 username 입니다.");
-		errorResponse.setCode("duplicated.username.exception");
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+	
+	//글로벌로 빼면 모든 곳에서 발생되는 특정 익셉션
+//	@ExceptionHandler(UserDuplicatedException.class)
+//	public ResponseEntity handleuserDuplicatedException (UserDuplicatedException e) {
+//		ErrorResponse errorResponse = new ErrorResponse();
+//		errorResponse.setMessage("[ " + e.getUsername() + " ] 중복된 username 입니다.");
+//		errorResponse.setCode("duplicated.username.exception");
+//		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+//	}
+	
+	
+	//메트릭스베리어블 @MatrixVariable /pet/42;q=11;r22
+	//페이징 Spring jpa pagable
+	// accounts?page=0&size=20&sort=username&sort=joined,desc pageable에서 받아줌
+	// NSPA 1. JSP 2. Thymleaf
+	// SPA   3. 앵귤러 4. 리액트
+	@RequestMapping(value = "/accounts", method=RequestMethod.GET)
+	public ResponseEntity getAccounts(Pageable pageable) {
+		Page<Account> page =  repository.findAll(pageable);
+		//TODO stream() vs parallelStream()
+		List<AccountDto.Response> content =  page.getContent().parallelStream()
+				.map(account -> modelMapper.map(account, AccountDto.Response.class))
+				.collect(Collectors.toList());
+		PageImpl<AccountDto.Response> result = new PageImpl<>(content, pageable, page.getTotalElements());
+		return new ResponseEntity<>(result, HttpStatus.OK);
+		
 	}
 	
 	

@@ -1,0 +1,13 @@
+    SLF4j  JCL(자카르타 커먼스 로그)
+
+Log4j  Logback   --인터페이스가 있고 재구현할
+
+    JUL
+    
+   log4j-over-SLF4j   다 slf4j쪽으로 오게하여 
+   
+   jul-to-SLF4j  델리게이션 slf4j로 보내서
+   
+   SLF4j 를 사용해서 logback으로 구현
+   
+   logback를 사용하지 않는 로그들 slf4j에보내서 logback로 보낸다. 

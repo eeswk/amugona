@@ -1,10 +1,13 @@
 package me.whiteship.account;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import javax.xml.ws.Service;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +15,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -25,6 +30,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import me.whiteship.Application;
 import me.whiteship.accounts.AccountDto;
+import me.whiteship.accounts.AccountService;
+import sun.nio.cs.ext.ISO2022_KR;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class)
@@ -37,6 +44,9 @@ public class AccountControllerTest {
 	
 	@Autowired
 	ObjectMapper objectMapper; 
+	
+	@Autowired
+	AccountService service;
 	
 	MockMvc mockMvc;
 	
@@ -90,6 +100,32 @@ public class AccountControllerTest {
 		result.andDo(print());
 		result.andExpect(status().isBadRequest());
 		result.andExpect(jsonPath("$.code", is("bad.request")));
+	}
+	
+	@Test
+	public void getAccounts() throws Exception{
+		AccountDto.Create createDto = new AccountDto.Create();
+		createDto.setUsername("whiteship");
+		createDto.setPassword("password");
+		service.createAccount(createDto);
+		
+		ResultActions result = mockMvc.perform(get("/accounts"));
+		
+//		{"content":
+//		[{"id":1,"username":"whiteship","fullName":null,"joined":1499959342908,"updated":1499959342908}],
+//		"totalElements":1,
+//		"totalPages":1,
+//		"last":true,
+//		"number":0,
+//		"size":20,
+//		"sort":null,
+//		"first":true,
+//		"numberOfElements":1}
+		
+		result.andDo(print());
+		result.andExpect(status().isOk());
+				
+		
 	}
 	
 
