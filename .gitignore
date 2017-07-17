@@ -17,3 +17,10 @@ target/test-classes/me/whiteship/account/AccountTest.class
 target/test-classes/me/whiteship/account/AccountControllerTest.class
 target/classes/me/whiteship/accounts/AccountService.class
 target/classes/me/whiteship/accounts/Account.class
+target/classes/application.properties
+target/classes/banner.txt
+target/test-classes/application.properties
+target/classes/me/whiteship/commons/ExceptionHandlers.class
+target/classes/me/whiteship/accounts/AccountNotFoundException.class
+target/classes/me/whiteship/accounts/AccountDto$Update.class
+target/classes/log
