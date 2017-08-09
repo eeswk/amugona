@@ -139,6 +139,15 @@ public class AccountController {
 	}
 */
 	
+	@RequestMapping(value = "/accounts/{id}", method =RequestMethod.DELETE)
+	public ResponseEntity deleteAccount(@PathVariable Long id) {
+		service.deleteAccount(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	
+	
+	
 	
 	
 	// 글로벌로 빼면 모든 곳에서 발생되는 특정 익셉션

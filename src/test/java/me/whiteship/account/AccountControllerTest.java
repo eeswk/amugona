@@ -1,6 +1,7 @@
 package me.whiteship.account;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -160,6 +161,21 @@ public class AccountControllerTest {
     	 result.andExpect(jsonPath("$.fullName", is("keesun baik")));
     	 
     	
+    }
+    
+    @Test
+    public void deleteAccount() throws Exception {
+    	ResultActions result = mockMvc.perform(delete("/accounts/1"));
+    	result.andDo(print());
+    	result.andExpect(status().isBadRequest());
+    	
+   	 	AccountDto.Create createDto = accountCreateDto();
+   	 	Account account = service.createAccount(createDto);
+   	 	
+    	result = mockMvc.perform(delete("/accounts/" + account.getId()));
+    	result.andDo(print());
+    	result.andExpect(status().isNoContent());
+   	 
     }
 
 
