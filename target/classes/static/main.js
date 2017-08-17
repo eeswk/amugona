@@ -19,7 +19,7 @@ var Nav = React.createClass({
                             <li><a href="#contact">Contact</a></li>
                         </ul>
                         <ul className="nav navbar-nav navbar-right">
-                            <li><a href="#">Sign up</a></li>
+                            <li><a href="#signup">Sign up</a></li>
                             <li><a href="#about">Sign in</a></li>
                         </ul>
                     </div>{/* .nav-collapse */}

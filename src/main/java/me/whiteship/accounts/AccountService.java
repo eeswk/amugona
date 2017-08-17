@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,9 @@ public class AccountService {
 	
 	@Autowired
 	private ModelMapper modelMapper;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	public Account createAccount(AccountDto.Create dto) {
 //		Account account = new Account();
@@ -33,7 +37,6 @@ public class AccountService {
 //		account.setPassword(dto.getPassword());
 		
 		Account account = modelMapper.map(dto, Account.class);
-		
 //		Account account = new Account();
 //		BeanUtils.copyProperties(dto, account);
 		
@@ -43,9 +46,9 @@ public class AccountService {
             log.error("user duplicated exception. {}", username);
             throw new UserDuplicatedException(username);
         }
-		
-		
+        
 		//TODO password 해싱
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
 		
  		Date now = new Date();
 		account.setJoined(now);
@@ -57,7 +60,8 @@ public class AccountService {
 
 	public Account updateAccount(Long id, AccountDto.Update updatDto) {
 		Account account = getAccount(id);
-		account.setPassword(updatDto.getPassword());
+//		account.setPassword(updatDto.getPassword());
+		account.setPassword(passwordEncoder.encode(account.getPassword()));
 		account.setFullName(updatDto.getFullName());
 		return repository.save(account);
 		// TODO Auto-generated method stub
